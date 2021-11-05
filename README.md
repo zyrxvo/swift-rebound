@@ -1,2 +1,3 @@
 # swift-rebound
-A Swift implementation of REBOUND
+
+A description of this package.
