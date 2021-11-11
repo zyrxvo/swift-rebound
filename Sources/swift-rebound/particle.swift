@@ -9,8 +9,14 @@ class Particle {
 
 }
 
+enum ErrorDescription : Error {
+    case runtimeError(String)
+}
+
 class ParticleNAN: Particle {
-    init(){
+    var errorDescription : String
+    init(errorDescription : String){
+        self.errorDescription = errorDescription
         super.init()
         super.m = Double.nan; super.x = Double.nan; super.y = Double.nan; super.z = Double.nan; super.vx = Double.nan; super.vy = Double.nan; super.vz = Double.nan; super.ax = Double.nan; super.ay = Double.nan; super.az = Double.nan; super.a = Double.nan; super.P = Double.nan; super.e = Double.nan; super.inc = Double.nan; super.Omega = Double.nan; super.omega = Double.nan; super.pomega = Double.nan; super.f = Double.nan; super.M = Double.nan; super.E = Double.nan; super.l = Double.nan
     }

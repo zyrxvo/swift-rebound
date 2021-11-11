@@ -17,35 +17,18 @@ func tools_mod_twopi(f: Double) -> Double {
     return fmod(twopi + fmod(f, twopi), twopi);
 }
 
-func tools_orbit_to_particle_err(G: Double, primary: Particle, m: Double, a: Double, e: Double, inc: Double, Omega: Double, omega: Double, f: Double) -> (particle: Particle, err: Int) {
-    if (e == 1) {
-        // Can't initialize a radial orbit with orbital elements.
-        return (ParticleNAN(), 1)
-    }
-    if (e < 0) {
-        // Eccentricity must be greater than or equal to zero.
-        return (ParticleNAN(), 2)
-    }
+func tools_orbit_to_particle_err(G: Double, primary: Particle, m: Double, a: Double, e: Double, inc: Double, Omega: Double, omega: Double, f: Double) throws -> Particle {
+    guard e != 1 else { throw ErrorDescription.runtimeError("Can't initialize a radial orbit with orbital elements.") }
+    guard e >= 0 else { throw ErrorDescription.runtimeError("Eccentricity must be greater than or equal to zero.") }
     if (e > 1) {
-        if (a > 0) {
-            // Bound orbit (a > 0) must have e < 1.0 
-            return (ParticleNAN(), 3)
-        }
+        guard a < 0 else { throw ErrorDescription.runtimeError("Bound orbit (a > 0) must have e < 1.0.") }
     }
     else {
-        if (a < 0){
-            // Unbound orbit (a < 0) must have e > 1.0
-			return (ParticleNAN(), 4)
-        }
+        guard a > 0 else { throw ErrorDescription.runtimeError("Unbound orbit (a < 0) must have e > 1.0.") }
     }
-    if (e*cos(f) < -1) {
-        // Unbound orbit can't have f set beyond the range allowed by the asymptotes set by the parabola.
-        return (ParticleNAN(), 5)
-    }
-    if (primary.m < TINY) {
-        // Primary has no mass
-        return (ParticleNAN(), 6)
-    }
+    guard (e*cos(f) >= -1) else { throw ErrorDescription.runtimeError("Unbound orbit can't have f set beyond the range allowed by the asymptotes set by the parabola.") }
+    guard (primary.m >= TINY) else { throw ErrorDescription.runtimeError("Primary has no mass.") }
+
     let p = Particle(m: m)
     let r = a*(1 - e*e) / (1 + e*cos(f))
     let v0 = sqrt(G*(m+primary.m)/a/(1.0 - e*e)) // in this form it works for elliptical and hyperbolic orbits
@@ -71,7 +54,7 @@ func tools_orbit_to_particle_err(G: Double, primary: Particle, m: Double, a: Dou
 	
 	p.ax = 0; 	p.ay = 0; 	p.az = 0;
 
-    return (p, 0)
+    return p
 
 }
 
