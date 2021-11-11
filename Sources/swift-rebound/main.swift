@@ -6,10 +6,10 @@ print(p)
 p = Particle(m: 1)
 
 let G = 1.0
-let m = 1e-6
+let m = 0.0
 let a = 1.0
-let e = 0.01
-let inc = 0.0
+let e = 0.0
+let inc = 1.0
 let Omega = 0.0
 let omega = 0.0
 let f = 0.0
