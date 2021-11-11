@@ -17,6 +17,6 @@ do {
     let res2 = tools_particle_to_orbit_err(G: G, p: res, primary: p)
     print(res2)
 }
-catch ErrorDescription.runtimeError(let errorMessage) {
-    print(errorMessage)
+catch {
+    print(error)
 }

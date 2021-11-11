@@ -8,24 +8,39 @@ class Particle {
     }
 
 }
-
-enum ErrorDescription : Error {
-    case runtimeError(String)
-}
-
-class ParticleNAN: Particle {
-    var errorDescription : String
-    init(errorDescription : String){
-        self.errorDescription = errorDescription
-        super.init()
-        super.m = Double.nan; super.x = Double.nan; super.y = Double.nan; super.z = Double.nan; super.vx = Double.nan; super.vy = Double.nan; super.vz = Double.nan; super.ax = Double.nan; super.ay = Double.nan; super.az = Double.nan; super.a = Double.nan; super.P = Double.nan; super.e = Double.nan; super.inc = Double.nan; super.Omega = Double.nan; super.omega = Double.nan; super.pomega = Double.nan; super.f = Double.nan; super.M = Double.nan; super.E = Double.nan; super.l = Double.nan
-    }
-}
-
 extension Particle: CustomStringConvertible {
     var description: String {
         // Make sure Cartesian coordinates are defined.
         return "< m=\(m), x=\(x), y=\(y), z=\(z), vx=\(vx), vy=\(vy), vz=\(vz) >"
+    }
+    
+}
+
+enum OrbitError : Error {
+    case radialOrbit
+    case negativeEccentricity
+    case boundOrbitError
+    case unboundOrbitError
+    case invalidTrueAnomaly
+    case masslessPrimary
+}
+
+extension OrbitError: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case .radialOrbit:
+            return "Can't initialize a radial orbit with orbital elements."
+        case .negativeEccentricity:
+            return "Eccentricity must be greater than or equal to zero."
+        case .boundOrbitError:
+            return "Bound orbit (a > 0) must have e < 1."
+        case .unboundOrbitError:
+            return "Unbound orbit (a < 0) must have e > 1."
+        case .invalidTrueAnomaly:
+            return "Unbound orbit can't have true anomaly, f, set beyond the range allowed by the asymptotes set by the parabola."
+        case .masslessPrimary:
+            return "Primary has no mass."
+        }
     }
     
 }

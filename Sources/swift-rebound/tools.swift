@@ -18,16 +18,16 @@ func tools_mod_twopi(f: Double) -> Double {
 }
 
 func tools_orbit_to_particle_err(G: Double, primary: Particle, m: Double, a: Double, e: Double, inc: Double, Omega: Double, omega: Double, f: Double) throws -> Particle {
-    guard e != 1 else { throw ErrorDescription.runtimeError("Can't initialize a radial orbit with orbital elements.") }
-    guard e >= 0 else { throw ErrorDescription.runtimeError("Eccentricity must be greater than or equal to zero.") }
+    guard e != 1 else { throw OrbitError.radialOrbit }
+    guard e >= 0 else { throw OrbitError.negativeEccentricity }
     if (e > 1) {
-        guard a < 0 else { throw ErrorDescription.runtimeError("Bound orbit (a > 0) must have e < 1.0.") }
+        guard a < 0 else { throw OrbitError.boundOrbitError }
     }
     else {
-        guard a > 0 else { throw ErrorDescription.runtimeError("Unbound orbit (a < 0) must have e > 1.0.") }
+        guard a > 0 else { throw OrbitError.unboundOrbitError }
     }
-    guard (e*cos(f) >= -1) else { throw ErrorDescription.runtimeError("Unbound orbit can't have f set beyond the range allowed by the asymptotes set by the parabola.") }
-    guard (primary.m >= TINY) else { throw ErrorDescription.runtimeError("Primary has no mass.") }
+    guard (e*cos(f) >= -1) else { throw OrbitError.invalidTrueAnomaly }
+    guard (primary.m >= TINY) else { throw OrbitError.masslessPrimary }
 
     let p = Particle(m: m)
     let r = a*(1 - e*e) / (1 + e*cos(f))
