@@ -2,12 +2,16 @@ import Foundation
 
 let TINY = 1e-308
 let M_PI = 3.141592653589793238462643383279502884197
-let MIN_REL_ERROR = 1.0e-12	///< Close to smallest relative floating point number, used for orbit calculation
-let MIN_INC = 1.0e-8		///< Below this inclination, the broken angles pomega and theta equal the corresponding 
-							///< unbroken angles to within machine precision, so a practical boundary for planar orbits
-							//
-let MIN_ECC = 1.0e-8       ///< Below this eccentricity, corrections at order e^2 are below machine precision, so we use
-                            ///< stable expressions accurate to O(e) for the mean longitude below for near-circular orbits.
+let MIN_REL_ERROR = 1.0e-12
+// Close to smallest relative floating point number, used for orbit calculation
+
+let MIN_INC = 1.0e-8
+// Below this inclination, the broken angles pomega and theta equal the corresponding
+// unbroken angles to within machine precision, so a practical boundary for planar orbits
+
+let MIN_ECC = 1.0e-8
+// Below this eccentricity, corrections at order e^2 are below machine precision, so we use
+// stable expressions accurate to O(e) for the mean longitude below for near-circular orbits.
 // returns acos(num/denom), using disambiguator to tell which quadrant to return.  
 // will return 0 or pi appropriately if num is larger than denom by machine precision
 // and will return 0 if denom is exactly 0.0
@@ -17,7 +21,11 @@ func tools_mod_twopi(f: Double) -> Double {
     return fmod(twopi + fmod(f, twopi), twopi);
 }
 
-func tools_orbit_to_particle_err(G: Double, primary: Particle, m: Double, a: Double, e: Double, inc: Double, Omega: Double, omega: Double, f: Double) throws -> Particle {
+func tools_orbit_to_particle(G: Double, primary: Particle, m: Double, orbit: Orbit) throws -> Particle {
+    return try tools_orbital_elements_to_particle(G: G, primary: primary, m: m, a: orbit.a, e: orbit.e, inc: orbit.inc, Omega: orbit.Omega, omega: orbit.omega, f: orbit.f)
+}
+
+func tools_orbital_elements_to_particle(G: Double, primary: Particle, m: Double, a: Double, e: Double, inc: Double, Omega: Double, omega: Double, f: Double) throws -> Particle {
     guard e != 1 else { throw OrbitError.radialOrbit }
     guard e >= 0 else { throw OrbitError.negativeEccentricity }
     if (e > 1) {
@@ -73,12 +81,11 @@ func acos2(num: Double, denom: Double, disambiguator: Double) -> Double {
 	return val;
 }
 
-func tools_particle_to_orbit_err(G: Double, p: Particle, primary: Particle) -> (orbit: Orbit, err: Int) {
+func tools_particle_to_orbit(G: Double, p: Particle, primary: Particle) throws -> Orbit {
     let o = Orbit()
-    if (primary.m <= TINY){	
-        // primary has no mass.
-		return (OrbitNAN(), 1);
-	}
+    
+    guard (primary.m >= TINY) else { throw OrbitError.masslessPrimary }
+    
 	var mu,dx,dy,dz,dvx,dvy,dvz,vsquared,vcircsquared,vdiffsquared : Double
 	var hx,hy,hz,vr,rvr,muinv,ex,ey,ez,nx,ny,n,ea : Double
 	mu = G*(p.m+primary.m)
@@ -102,11 +109,9 @@ func tools_particle_to_orbit_err(G: Double, p: Particle, primary: Particle) -> (
 	hz = (dx*dvy - dy*dvx)
 	o.h = sqrt ( hx*hx + hy*hy + hz*hz ) // abs value of angular momentum
 
-	vdiffsquared = vsquared - vcircsquared;	
-	if(o.d <= TINY){
-        // particle is on top of primary
-		return (OrbitNAN(), 2)
-	}
+	vdiffsquared = vsquared - vcircsquared;
+    guard (o.d > TINY) else { throw OrbitError.coincidesWithPrimary }
+
 	vr = (dx*dvx + dy*dvy + dz*dvz)/o.d	
 	rvr = o.d*vr
 	muinv = 1.0/mu
@@ -210,5 +215,5 @@ func tools_particle_to_orbit_err(G: Double, p: Particle, primary: Particle) -> (
     o.theta = tools_mod_twopi(f: o.theta)
     o.omega = tools_mod_twopi(f: o.omega)
 
-    return (o, 0)
+    return o
 }

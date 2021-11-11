@@ -1,4 +1,5 @@
-print("Hello, world!")
+print("Welcome to swift-rebound!")
+
 var p = Particle(m: 1)
 print(p)
 
@@ -12,10 +13,13 @@ let omega = 0.0
 let f = 0.0
 
 do {
-    let res = try tools_orbit_to_particle_err(G: G, primary: p, m: m, a: a, e: e, inc: inc, Omega: Omega, omega: omega, f: f)
-    print(res)
-    let res2 = tools_particle_to_orbit_err(G: G, p: res, primary: p)
-    print(res2)
+    let particle = try tools_orbital_elements_to_particle(G: G, primary: p, m: m, a: a, e: e, inc: inc, Omega: Omega, omega: omega, f: f)
+    print(particle)
+    let orbit = try tools_particle_to_orbit(G: G, p: particle, primary: p)
+    print(orbit)
+    let particle2 = try tools_orbit_to_particle(G: G, primary: p, m: m, orbit: orbit)
+    print(particle2)
+    
 }
 catch {
     print(error)

@@ -23,6 +23,7 @@ enum OrbitError : Error {
     case unboundOrbitError
     case invalidTrueAnomaly
     case masslessPrimary
+    case coincidesWithPrimary
 }
 
 extension OrbitError: CustomStringConvertible {
@@ -40,6 +41,8 @@ extension OrbitError: CustomStringConvertible {
             return "Unbound orbit can't have true anomaly, f, set beyond the range allowed by the asymptotes set by the parabola."
         case .masslessPrimary:
             return "Primary has no mass."
+        case .coincidesWithPrimary:
+            return "Particle is on top of primary."
         }
     }
     
