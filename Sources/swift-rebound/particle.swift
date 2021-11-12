@@ -25,13 +25,9 @@ class Particle: Equatable  {
         guard !isCart || !isOrbi else { throw OrbitError.mixedCartesianAndKepler }
         
         if isOrbi {
-            print("Orbital elements were passed given.")
-            if primary == nil {
-                throw OrbitError.missingPrimary
-            }
-            else {
-                self.primary = primary
-            }
+            // A primary mass is required when initialzing a Particle with orbital elements.
+            guard primary != nil else { throw OrbitError.missingPrimary }
+            self.primary = primary
             
             guard a != nil || P != nil else { throw OrbitError.missing_a_or_P }
             guard a == nil || P == nil else { throw OrbitError.mixed_a_and_P }
