@@ -1,7 +1,7 @@
 import Foundation
 
 let TINY = 1e-308
-let M_PI = 3.141592653589793238462643383279502884197
+let PI = 3.141592653589793238462643383279502884197
 let MIN_REL_ERROR = 1.0e-12
 // Close to smallest relative floating point number, used for orbit calculation
 
@@ -16,8 +16,15 @@ let MIN_ECC = 1.0e-8
 // will return 0 or pi appropriately if num is larger than denom by machine precision
 // and will return 0 if denom is exactly 0.0
 
+// Extend booleans to include the XOR operator.
+extension Bool {
+    static func ^ (left: Bool, right: Bool) -> Bool {
+        return left != right
+    }
+}
+
 func tools_mod_twopi(f: Double) -> Double {
-    let twopi = 2.0*M_PI;
+    let twopi = 2.0*PI;
     return fmod(twopi + fmod(f, twopi), twopi);
 }
 
@@ -37,7 +44,7 @@ func tools_orbital_elements_to_particle(G: Double, primary: Particle, m: Double,
     guard (e*cos(f) >= -1) else { throw OrbitError.invalidTrueAnomaly }
     guard (primary.m >= TINY) else { throw OrbitError.masslessPrimary }
 
-    let p = Particle(m: m)
+    let p = try Particle(m: m)
     let r = a*(1 - e*e) / (1 + e*cos(f))
     let v0 = sqrt(G*(m+primary.m)/a/(1.0 - e*e)) // in this form it works for elliptical and hyperbolic orbits
 
@@ -76,7 +83,7 @@ func acos2(num: Double, denom: Double, disambiguator: Double) -> Double {
 		}
 	}
 	else{
-		val = (cosine <= -1.0) ? M_PI : 0.0
+		val = (cosine <= -1.0) ? PI : 0.0
 	}
 	return val;
 }
@@ -121,7 +128,7 @@ func tools_particle_to_orbit(G: Double, p: Particle, primary: Particle) throws -
 	ez = muinv*( vdiffsquared*dz - rvr*dvz )
  	o.e = sqrt( ex*ex + ey*ey + ez*ez ) // eccentricity
 	o.n = o.a/fabs(o.a)*sqrt(fabs(mu/(o.a*o.a*o.a))) // mean motion (negative if hyperbolic)
-	o.P = 2*M_PI/o.n // period (negative if hyperbolic)
+	o.P = 2*PI/o.n // period (negative if hyperbolic)
 
 	o.inc = acos2(num: hz, denom: o.h, disambiguator: 1.0) // cosi = dot product of h and z unit vectors.  Always in [0,pi], so pass dummy disambiguator
 							    // will = 0 if h is 0.0
@@ -147,11 +154,11 @@ func tools_particle_to_orbit(G: Double, p: Particle, primary: Particle) throws -
 
 	// in the near-planar case, the true longitude is always well defined for the position, and pomega for the pericenter if e!= 0
 	// we therefore calculate those and calculate the remaining angles from them
-	if(o.inc < MIN_INC || o.inc > M_PI - MIN_INC){	// nearly planar.  Use longitudes rather than angles referenced to node for numerical stability.
+	if(o.inc < MIN_INC || o.inc > PI - MIN_INC){	// nearly planar.  Use longitudes rather than angles referenced to node for numerical stability.
 		o.theta = acos2(num: dx, denom: o.d, disambiguator: dy)		// cos theta is dot product of x and r vectors (true longitude). 
         o.pomega = acos2(num: ex, denom: o.e, disambiguator: ey)		// cos pomega is dot product of x and e unit vectors.  Will = 0 if e=0.0
 
-		if(o.inc < M_PI/2.0){
+		if(o.inc < PI/2.0){
 			o.omega = o.pomega - o.Omega
 			o.f = o.theta - o.pomega
             if(o.e > MIN_ECC){              // pomega well defined
@@ -177,7 +184,7 @@ func tools_particle_to_orbit(G: Double, p: Particle, primary: Particle) throws -
 	else{
 		let wpf = acos2(num: nx*dx + ny*dy, denom: n*o.d, disambiguator: dz)	// omega plus f.  Both angles measured in orbital plane, and always well defined for i!=0.0
 		o.omega = acos2(num: nx*ex + ny*ey, denom: n*o.e, disambiguator: ez)
-		if(o.inc < M_PI/2.0){
+		if(o.inc < PI/2.0){
 			o.pomega = o.Omega + o.omega
 			o.f = wpf - o.omega
 			o.theta = o.Omega + wpf
@@ -216,4 +223,49 @@ func tools_particle_to_orbit(G: Double, p: Particle, primary: Particle) throws -
     o.omega = tools_mod_twopi(f: o.omega)
 
     return o
+}
+
+func tools_M_to_E(e: Double, M: Double) -> Double {
+    var E : Double
+    if e < 1.0 {
+        let _M = tools_mod_twopi(f: M) // avoid numerical artefacts for negative numbers
+        E = e < 0.8 ? _M : PI
+        var F = E - e*sin(E) - _M
+        for _ in 0...100 {
+            E = E - F/(1.0-e*cos(E))
+            F = E - e*sin(E) - _M
+            if(fabs(F) < 1.0e-16){
+                break
+            }
+        }
+        E = tools_mod_twopi(f: E)
+        return E;
+    }
+    else {
+        E = M/fabs(M)*log(2.0*fabs(M)/e + 1.8);
+        var F = E - e*sinh(E) + M;
+        for _ in 0...100 {
+            E = E - F/(1.0 - e*cosh(E));
+            F = E - e*sinh(E) + M;
+            if(fabs(F) < 1.0e-16){
+                break;
+            }
+        }
+        return E;
+    }
+}
+
+
+func tools_E_to_f(e: Double, E: Double) -> Double {
+    if(e > 1.0){
+        return tools_mod_twopi(f: (2.0*atan(sqrt((1.0+e)/(e-1.0))*tanh(0.5*E))))
+    }
+    else{
+        return tools_mod_twopi(f: (2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(0.5*E))))
+    }
+}
+
+func tools_M_to_f(e: Double, M: Double) -> Double {
+    let E = tools_M_to_E(e: e, M: M)
+    return tools_E_to_f(e: e, E: E)
 }
