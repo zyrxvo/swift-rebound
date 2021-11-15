@@ -1,11 +1,21 @@
 import Foundation
 
-class Particle: Equatable  {
+public class Particle: Equatable  {
     var m, x, y, z, vx, vy, vz, ax, ay, az, a, P, e, inc, Omega, omega, pomega, f, M, E, l, theta, T: Double
+    var xyz : [Double] {
+        get {
+            return [x, y, z]
+        }
+    }
+    var vxyz : [Double] {
+        get {
+            return [vx, vy, vz]
+        }
+    }
     var primary : Particle?
     var sim : Simulation?
     
-    init(m: Double? = nil, x: Double? = nil, y: Double? = nil, z: Double? = nil, vx: Double? = nil, vy: Double? = nil, vz: Double? = nil, ax: Double? = nil, ay: Double? = nil, az: Double? = nil, a: Double? = nil, P: Double? = nil, e: Double? = nil, inc: Double? = nil, Omega: Double? = nil, omega: Double? = nil, pomega: Double? = nil, f: Double? = nil, M: Double? = nil, E: Double? = nil, l: Double? = nil, theta: Double? = nil, T: Double? = nil, primary: Particle? = nil, G: Double? = 1.0) throws {
+    public init(m: Double? = nil, x: Double? = nil, y: Double? = nil, z: Double? = nil, vx: Double? = nil, vy: Double? = nil, vz: Double? = nil, ax: Double? = nil, ay: Double? = nil, az: Double? = nil, a: Double? = nil, P: Double? = nil, e: Double? = nil, inc: Double? = nil, Omega: Double? = nil, omega: Double? = nil, pomega: Double? = nil, f: Double? = nil, M: Double? = nil, E: Double? = nil, l: Double? = nil, theta: Double? = nil, T: Double? = nil, primary: Particle? = nil, G: Double? = 1.0) throws {
         
         self.m = m ?? 0.0 // If no mass is given, set the mass to 0.
         
@@ -167,13 +177,13 @@ class Particle: Equatable  {
         self.az = az ?? 0.0
     }
     
-    static func ==(lhs: Particle, rhs: Particle) -> Bool {
+    public static func ==(lhs: Particle, rhs: Particle) -> Bool {
         return lhs.m == rhs.m && lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.vx == rhs.vx && lhs.vy == rhs.vy && lhs.vz == rhs.vx && lhs.ax == rhs.ax && lhs.ay == rhs.ay && lhs.az == rhs.az && lhs.a == rhs.a && lhs.P == rhs.P && lhs.e == rhs.e && lhs.inc == rhs.inc && lhs.Omega == rhs.Omega && lhs.omega == rhs.omega && lhs.pomega == rhs.pomega && lhs.f == rhs.f && lhs.M == rhs.M && lhs.E == rhs.E && lhs.l == rhs.l
     }
 
 }
 extension Particle: CustomStringConvertible {
-    var description: String {
+    public var description: String {
         // Make sure Cartesian coordinates are defined.
         return "< m=\(m), x=\(x), y=\(y), z=\(z), vx=\(vx), vy=\(vy), vz=\(vz) >"
     }
@@ -235,7 +245,7 @@ extension OrbitError: CustomStringConvertible {
 ///
 /// When using the various swift-rebound functions using Orbits, all angles are in radians.
 /// In swift-rebound the reference direction is the positive x direction, the reference plane is the xy plane.
-class Orbit {
+public class Orbit {
     var d, v, h, P, n, a, e, inc, Omega, omega, pomega, f, M, l, theta, T, rhill: Double
     
     /// Orbit initializer
@@ -264,7 +274,7 @@ class Orbit {
 }
 
 extension Orbit: CustomStringConvertible {
-    var description: String {
+    public var description: String {
         // Make sure Orbital elements are defined.
         return "< a=\(a), e=\(e), inc=\(inc), Omega=\(Omega), omega=\(omega), f=\(f)>"
     }

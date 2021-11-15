@@ -1,4 +1,4 @@
-class Simulation {
+public class Simulation {
     var t : Double = 0.0
     var G : Double = 1.0
     var dt : Double = 0.001
@@ -11,8 +11,7 @@ class Simulation {
     }
     var particles : [Particle] = []
     
-    init(){
-    }
+    public init(){}
     
     public func add(particle: Particle? = nil, m: Double? = nil, x: Double? = nil, y: Double? = nil, z: Double? = nil, vx: Double? = nil, vy: Double? = nil, vz: Double? = nil, ax: Double? = nil, ay: Double? = nil, az: Double? = nil, a: Double? = nil, P: Double? = nil, e: Double? = nil, inc: Double? = nil, Omega: Double? = nil, omega: Double? = nil, pomega: Double? = nil, f: Double? = nil, M: Double? = nil, E: Double? = nil, l: Double? = nil, theta: Double? = nil, T: Double? = nil, primary: Particle? = nil, G: Double? = 1.0) {
         if let p = particle {
@@ -34,10 +33,8 @@ class Simulation {
             }
         }
     }
-}
-
-extension Simulation: CustomStringConvertible {
-    var description: String {
+    
+    public func status() -> String {
         // Make sure Cartesian coordinates are defined.
         var s = ""
         s += "---------------------------------\n"
@@ -55,6 +52,12 @@ extension Simulation: CustomStringConvertible {
         }
         s += "---------------------------------"
         return s
+    }
+}
+
+extension Simulation: CustomStringConvertible {
+    public var description: String {
+        return self.status()
     }
     
 }

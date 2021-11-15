@@ -89,7 +89,7 @@ class CoordinateConversionTests: XCTestCase {
     func test_massless_primary_orbit_initialization() throws {
         let expectedError = OrbitError.masslessPrimary
         var err: OrbitError?
-        let particle = try Particle(a: 1)
+        let particle = try Particle(a: 1, primary: primary)
         primary = try Particle(m: 0)
 
         XCTAssertThrowsError(try tools_particle_to_orbit(G: G, p: particle, primary: primary)) {

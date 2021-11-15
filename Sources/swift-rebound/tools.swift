@@ -1,7 +1,7 @@
 import Foundation
 
 let TINY = 1e-308
-let PI = 3.141592653589793238462643383279502884197
+let PI = Double.pi //3.141592653589793238462643383279502884197
 let MIN_REL_ERROR = 1.0e-12
 // Close to smallest relative floating point number, used for orbit calculation
 

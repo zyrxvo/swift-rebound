@@ -1,3 +1,3 @@
-# swift-rebound
+# Welcome to swift-rebound
 
-A description of this package.
+This package is a Swift implementation of some of the basic tools and functionality of [REBOUND](https://github.com/hannorein/rebound), the open source N-body software.
