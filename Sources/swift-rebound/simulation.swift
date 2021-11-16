@@ -4,6 +4,7 @@ public class Simulation {
     var dt : Double = 0.001
     var dt_last_done : Int = 0
     var steps_done : Int = 0
+    var integrator : Integrator = LeapFrog()
     var N : Int {
         get {
             return self.particles.count
@@ -34,20 +35,25 @@ public class Simulation {
         }
     }
     
+    public func integrate(tmax: Double) {
+        while self.t < tmax {
+            self.integrator.step(s: self)
+        }
+    }
+    
     public func status() -> String {
-        // Make sure Cartesian coordinates are defined.
         var s = ""
         s += "---------------------------------\n"
         //        s += "REBOUND version:     \t%s\n" %__version__
         //        s += "REBOUND built on:    \t%s\n" %__build__
         s += "Number of particles: \t\(self.N)\n"
-        //        s += "Selected integrator: \t" + self.integrator + "\n"
-        s += "Simulation time:     \t\(String(format: "%.16f", self.t))\n"
+        s += "Selected integrator: \t\(self.integrator)\n"
+        s += "Simulation time:     \t\(String(format: "%.16e", self.t))\n"
         s += "Current timestep:    \t\(String(format: "%f", self.dt))\n"
         if self.N > 0 {
             s += "---------------------------------\n"
             for p in self.particles {
-                s += "< m=\(p.m), x=\(p.x), y=\(p.y), z=\(p.z), vx=\(p.vx), vy=\(p.vy), vz=\(p.vz) >\n"
+                s += "< m= \(p.m), x= \(p.x), y= \(p.y), z= \(p.z), vx= \(p.vx), vy= \(p.vy), vz= \(p.vz) >\n"
             }
         }
         s += "---------------------------------"

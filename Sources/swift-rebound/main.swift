@@ -9,25 +9,13 @@ let Omega = 0.0
 let omega = 0.0
 let f = PI
 
-
-
 let sim = Simulation()
 sim.add(m: 1)
-sim.add(m: 1, x: 1)
-sim.add(m: 1, x: 2)
+sim.add(m: 1e-6, a: 1)
+sim.add(m: 1e-3, a: 4)
 print(sim)
-
-for p in sim.particles {
-    print(p.ax, p.ay, p.az)
-}
-
-
-let I = Integrator()
-I.calculateAcceleration(G: 1.0, particles: sim.particles)
-
-for p in sim.particles {
-    print(p.ax, p.ay, p.az)
-}
+sim.integrate(tmax: 100 * TWOPI)
+print(sim)
 
 //do {
 //    let p = try Particle(m: 1)

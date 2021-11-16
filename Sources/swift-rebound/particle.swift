@@ -184,7 +184,6 @@ public class Particle: Equatable  {
 }
 extension Particle: CustomStringConvertible {
     public var description: String {
-        // Make sure Cartesian coordinates are defined.
         return "< m=\(m), x=\(x), y=\(y), z=\(z), vx=\(vx), vy=\(vy), vz=\(vz) >"
     }
     
